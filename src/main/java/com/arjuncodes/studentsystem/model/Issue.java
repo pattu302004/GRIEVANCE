@@ -31,6 +31,12 @@ public class Issue {
     @Column(name = "preferred_resolution_time")
     private LocalTime preferredResolutionTime;
 
+    @Column(name = "latitude")
+    private Double latitude; // New field for GPS
+
+    @Column(name = "longitude")
+    private Double longitude; // New field for GPS
+
     @Column(nullable = false)
     private String status = "Pending";
 
@@ -69,6 +75,12 @@ public class Issue {
     public LocalTime getPreferredResolutionTime() { return preferredResolutionTime; }
     public void setPreferredResolutionTime(LocalTime preferredResolutionTime) { this.preferredResolutionTime = preferredResolutionTime; }
 
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
@@ -91,6 +103,8 @@ public class Issue {
                 ", issueDescription='" + issueDescription + '\'' +
                 ", preferredResolutionDate=" + preferredResolutionDate +
                 ", preferredResolutionTime=" + preferredResolutionTime +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 ", status='" + status + '\'' +
                 ", submissionDate=" + submissionDate +
                 ", confirmationCode='" + confirmationCode + '\'' +

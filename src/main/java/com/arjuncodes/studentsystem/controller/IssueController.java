@@ -44,28 +44,32 @@ public class IssueController {
     @Autowired
     private EmailService emailService;
 
-    private static final String UPLOAD_DIR = "/Users/akahya/grievance_uploads/reopen_images/"; // Replace "john" with your username
+    private static final String UPLOAD_DIR = "/Users/akahya/grievance_Uploads/reopen_images/"; // Replace with your path
 
     @PostMapping("/submit")
     public ResponseEntity<String> submitIssue(@RequestBody IssueRequest issueRequest) {
-        System.out.println("Received issue request: " + issueRequest); // Log the request
+        System.out.println("Received issue request: " + issueRequest);
         try {
             User user = userService.findById(issueRequest.getUserId());
             if (user == null) {
                 return ResponseEntity.badRequest().body("User not found");
             }
-    
+
             Issue issue = new Issue();
             issue.setUser(user);
             issue.setComplaintType(issueRequest.getComplaintType());
             issue.setIssueDescription(issueRequest.getIssueDescription());
             issue.setPreferredResolutionDate(issueRequest.getPreferredResolutionDate());
             issue.setPreferredResolutionTime(issueRequest.getPreferredResolutionTime());
+            issue.setLatitude(issueRequest.getLatitude());
+            issue.setLongitude(issueRequest.getLongitude());
             issue.setStatus("Pending");
-    
+
+            System.out.println("Saving issue: " + issue);
             issueService.saveIssue(issue);
             return ResponseEntity.ok("Issue submitted successfully");
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Error submitting issue: " + e.getMessage());
         }
     }
@@ -367,30 +371,29 @@ public class IssueController {
         if (requestId == null) {
             return ResponseEntity.badRequest().body("Request ID cannot be null or undefined");
         }
-    
+
         Optional<ReopenRequest> optionalRequest = issueService.getReopenRequestById(requestId);
         if (!optionalRequest.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reopen request not found for ID: " + requestId);
         }
-    
+
         ReopenRequest reopenRequest = optionalRequest.get();
         Issue issue = reopenRequest.getIssue();
-    
-        // Update issue status to "Rejected"
+
         issue.setStatus("Rejected");
         issueService.saveIssue(issue);
-    
-        // Delete the reopen request
+
         issueService.deleteReopenRequestById(requestId);
-    
+
         String subject = "Your Issue Reopen Request Rejected";
         String body = "Dear " + issue.getUser().getName() + ",\n\n" +
                 "Your request to reopen issue '" + issue.getComplaintType() + "' has been reviewed and rejected. " +
                 "If you have further concerns, please submit a new grievance.\n\nThank you!";
         emailService.sendEmail(issue.getUser().getEmail(), subject, body);
-    
+
         return ResponseEntity.ok("Reopen request rejected successfully");
     }
+
     private String generateRandomCode() {
         int length = 6;
         String digits = "0123456789";
@@ -414,6 +417,22 @@ class IssueRequest {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime preferredResolutionTime;
 
+    private Double latitude; // New field for GPS
+    private Double longitude; // New field for GPS
+
+    @Override
+    public String toString() {
+        return "IssueRequest{" +
+                "userId=" + userId +
+                ", complaintType='" + complaintType + '\'' +
+                ", issueDescription='" + issueDescription + '\'' +
+                ", preferredResolutionDate=" + preferredResolutionDate +
+                ", preferredResolutionTime=" + preferredResolutionTime +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
+    }
+
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 
@@ -428,6 +447,12 @@ class IssueRequest {
 
     public LocalTime getPreferredResolutionTime() { return preferredResolutionTime; }
     public void setPreferredResolutionTime(LocalTime preferredResolutionTime) { this.preferredResolutionTime = preferredResolutionTime; }
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }
 
 class ReopenApprovalRequest {

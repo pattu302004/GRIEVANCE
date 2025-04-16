@@ -251,6 +251,9 @@ export default function Dashboard() {
                     <Typography><strong>Issue Description:</strong> {selectedIssue.issueDescription}</Typography>
                     <Typography><strong>Preferred Resolution Date:</strong> {selectedIssue.preferredResolutionDate}</Typography>
                     <Typography><strong>Preferred Resolution Time:</strong> {selectedIssue.preferredResolutionTime}</Typography>
+                    <Typography><strong>Location:</strong> {selectedIssue.latitude && selectedIssue.longitude 
+                      ? `${selectedIssue.latitude.toFixed(6)}, ${selectedIssue.longitude.toFixed(6)}` 
+                      : 'Not provided'}</Typography>
                     <Typography><strong>Status:</strong> {selectedIssue.status}</Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
